@@ -23,71 +23,86 @@ class App extends React.Component {
       Skills: Skills,
       Contact: Contact
     };
+    this.timestamp = new Date();
+    this.time = {
+      year: this.timestamp.getUTCFullYear(),
+      month: this.timestamp.getMonth(),
+      day: this.timestamp.getDay(),
+      hour: this.timestamp.getHours(),
+      min: this.timestamp.getMinutes(),
+      locale: this.timestamp.toLocaleDateString()
+    };
     //bindings
     this.pageHandler = this.pageHandler.bind(this);
+    this.connectGlestBukken = this.connectGlestBukken.bind(this);
   }
-
-  componentDidMount() {
-    console.log("app mounted");
-    setTimeout(() => {
-      winHeight = $(window).height();
-      let heightAdjusted = winHeight - winHeight / 9;
-      console.log(winHeight);
-      $("body").css("height", heightAdjusted);
-      console.log($("body").css("height"));
-      $(".page").css("height", heightAdjusted - 100);
-    }, 100);
-
+  
+  connectGlestBukken(ip) {
     //analytics
+    let time = this.time;
+    let timeString = `${time.hour}:${time.min}:${time.locale}`;
     let clientID;
-    let clientConnects = $.ajax({
+    $.ajax({
       url: "https://glestbukken.firebaseio.com/analytics.json",
       type: "POST",
-      data: JSON.stringify({ signal: "connect" }),
+      data: JSON.stringify({ signal: {
+        client: 'Portfolio',
+        from: ip,
+        at: timeString
+      }}),
       dataType: "json",
       contentType: "application/json",
       success(responseText) {
-        clientID = responseText;
+        clientID = responseText.name;
         localStorage.setItem("clientID", clientID);
       },
       error(jqXHR, status, errorThrown) {
-        //
+        console.log(jqXHR);
       }
-    });
-
-    //disconnect client
-    $(window).on('beforeunload',()=> {
-      $.ajax({
-        type: "PUT", 
-        data: JSON.stringify({signal:'disconnect'}), 
-        dataType: "json", 
-        contentType: 'application/json',
-        url: "https://glestbukken.firebaseio.com/analytics/"+clientID+".json",
-        success(response) {
-          console.log('!');
-        }
-      });
     });
   }
 
+  componentDidMount() {
+    //console.log("app mounted");
+    setTimeout(() => {
+      winHeight = $(window).height();
+      let heightAdjusted = winHeight - winHeight / 9;
+      //console.log(winHeight);
+      $("body").css("height", heightAdjusted);
+      //console.log($("body").css("height"));
+      $(".page").css("height", heightAdjusted - 100);
+    }, 100);
+    $.getJSON("//freegeoip.net/json/?callback=?", (data) => {
+      let done = new Promise((resolve,reject)=>{
+        resolve(this.connectGlestBukken(JSON.stringify(data.ip)));
+        reject(console.log('Waiting for GlestBukken'));
+      });
+    });
+
+    
+    
+  }
+  
+  
+
   componentDidUpdate() {
-    console.log("app updated");
+    //console.log("app updated");
   }
 
   pageHandler(tpage) {
-    console.log("pagehandler");
+    //console.log("pagehandler");
     this.setState({ page: tpage });
   }
 
   render() {
     let Page = this.pages[this.state.page];
-    console.log(Page);
+    //console.log(Page);
     return (
       <div id="wrapper">
         <Header />
         <div id="middle">
           <Navigation onClick={this.pageHandler} />
-          <Page />
+          <Page time={[this.timestamp,this.time]}/>
         </div>
         <Footer onClick={this.pageHandler} />
       </div>

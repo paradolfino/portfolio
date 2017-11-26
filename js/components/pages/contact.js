@@ -1,26 +1,36 @@
 class Contact extends React.Component {
+  constructor(props){
+    super(props);
+    this.timestamp = this.props.time[0];
+    this.time = this.props.time[1];
+  }
   componentDidMount() {
     $('#envelope').addClass('animated fadeInLeftBig');
     $('#contactme').click((e)=>{
+      let time = this.time;
+      let timeString = `${time.locale.split('/').join('-')}`;
       let formName = $('#formName').val();
       let formEmail = $('#formEmail').val();
       let formMsg = $('#formMsg').val();
-      let contactDate = new Date('2017-11-04');
+      let id = localStorage.getItem("clientID");
+      console.log(JSON.stringify(id));
       e.preventDefault();
       document.getElementById('theform').reset();
       $('#envelope').addClass('animated fadeOutRightBig');
       $.ajax({
-        url: 'https://glestbukken.firebaseio.com/inbox/' + contactDate +'.json',
+        url: 'https://glestbukken.firebaseio.com/inbox/' + timeString +'/'+ id + '.json',
         type: 'POST',
         data: JSON.stringify({
+          client: 'Portfolio',
           name: formName,
           email: formEmail,
-          message: formMsg
+          message: formMsg,
+          at: `${time.hour}:${time.min}`
         }),
         dataType: 'json',
         contentType: 'application/json',
         success(response) {
-          console.log(response);
+          //
         },
         error(jqXHR,status,errorThrown) {
           console.log(jqXHR);

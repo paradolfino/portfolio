@@ -173,8 +173,8 @@ body {
   text-shadow: 1px 1px 1px #003326;
 }
 
-#skills div ul {
-  text-align: left;
+#skills div div {
+  margin: 0 auto;
 }
 
 #contact #thanks {

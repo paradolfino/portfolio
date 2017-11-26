@@ -13,15 +13,15 @@ class Navigation extends React.Component {
   componentDidMount() {
     //I chose to use jquery to handle clicks instead of the standard react method BECAUSE my buttons use transitions that seem to work inconsistently using pure react. The jquery catches all cases (90% of the time) of different user click locations.
     $('.btn').click((e)=>{
-      console.log(e.target.id + ' div face');
+      //console.log(e.target.id + ' div face');
       this.handleClick(e.target.id);
     });
     $('.btn button').click((e)=>{
-      console.log(e.target.id + ' button face');
+      //console.log(e.target.id + ' button face');
       this.handleClick(e.target.id);
     });
     $('.btn i').click((e)=>{
-      console.log(e.target.id + ' i face');
+      //console.log(e.target.id + ' i face');
       this.handleClick(e.target.id);
     });
   }

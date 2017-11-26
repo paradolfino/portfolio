@@ -8940,71 +8940,84 @@
 	      Skills: _skills2.default,
 	      Contact: _contact2.default
 	    };
+	    _this.timestamp = new Date();
+	    _this.time = {
+	      year: _this.timestamp.getUTCFullYear(),
+	      month: _this.timestamp.getMonth(),
+	      day: _this.timestamp.getDay(),
+	      hour: _this.timestamp.getHours(),
+	      min: _this.timestamp.getMinutes(),
+	      locale: _this.timestamp.toLocaleDateString()
+	    };
 	    //bindings
 	    _this.pageHandler = _this.pageHandler.bind(_this);
+	    _this.connectGlestBukken = _this.connectGlestBukken.bind(_this);
 	    return _this;
 	  }
 
 	  _createClass(App, [{
-	    key: "componentDidMount",
-	    value: function componentDidMount() {
-	      console.log("app mounted");
-	      setTimeout(function () {
-	        winHeight = $(window).height();
-	        var heightAdjusted = winHeight - winHeight / 9;
-	        console.log(winHeight);
-	        $("body").css("height", heightAdjusted);
-	        console.log($("body").css("height"));
-	        $(".page").css("height", heightAdjusted - 100);
-	      }, 100);
-
+	    key: "connectGlestBukken",
+	    value: function connectGlestBukken(ip) {
 	      //analytics
+	      var time = this.time;
+	      var timeString = time.hour + ":" + time.min + ":" + time.locale;
 	      var clientID = void 0;
-	      var clientConnects = $.ajax({
+	      $.ajax({
 	        url: "https://glestbukken.firebaseio.com/analytics.json",
 	        type: "POST",
-	        data: JSON.stringify({ signal: "connect" }),
+	        data: JSON.stringify({ signal: {
+	            client: 'Portfolio',
+	            from: ip,
+	            at: timeString
+	          } }),
 	        dataType: "json",
 	        contentType: "application/json",
 	        success: function success(responseText) {
-	          clientID = responseText;
+	          clientID = responseText.name;
 	          localStorage.setItem("clientID", clientID);
 	        },
 	        error: function error(jqXHR, status, errorThrown) {
-	          //
+	          console.log(jqXHR);
 	        }
 	      });
+	    }
+	  }, {
+	    key: "componentDidMount",
+	    value: function componentDidMount() {
+	      var _this2 = this;
 
-	      //disconnect client
-	      $(window).on('beforeunload', function () {
-	        $.ajax({
-	          type: "PUT",
-	          data: JSON.stringify({ signal: 'disconnect' }),
-	          dataType: "json",
-	          contentType: 'application/json',
-	          url: "https://glestbukken.firebaseio.com/analytics/" + clientID + ".json",
-	          success: function success(response) {
-	            console.log('!');
-	          }
+	      //console.log("app mounted");
+	      setTimeout(function () {
+	        winHeight = $(window).height();
+	        var heightAdjusted = winHeight - winHeight / 9;
+	        //console.log(winHeight);
+	        $("body").css("height", heightAdjusted);
+	        //console.log($("body").css("height"));
+	        $(".page").css("height", heightAdjusted - 100);
+	      }, 100);
+	      $.getJSON("//freegeoip.net/json/?callback=?", function (data) {
+	        var done = new Promise(function (resolve, reject) {
+	          resolve(_this2.connectGlestBukken(JSON.stringify(data.ip)));
+	          reject(console.log('Waiting for GlestBukken'));
 	        });
 	      });
 	    }
 	  }, {
 	    key: "componentDidUpdate",
 	    value: function componentDidUpdate() {
-	      console.log("app updated");
+	      //console.log("app updated");
 	    }
 	  }, {
 	    key: "pageHandler",
 	    value: function pageHandler(tpage) {
-	      console.log("pagehandler");
+	      //console.log("pagehandler");
 	      this.setState({ page: tpage });
 	    }
 	  }, {
 	    key: "render",
 	    value: function render() {
 	      var Page = this.pages[this.state.page];
-	      console.log(Page);
+	      //console.log(Page);
 	      return React.createElement(
 	        "div",
 	        { id: "wrapper" },
@@ -9013,7 +9026,7 @@
 	          "div",
 	          { id: "middle" },
 	          React.createElement(_navigation2.default, { onClick: this.pageHandler }),
-	          React.createElement(Page, null)
+	          React.createElement(Page, { time: [this.timestamp, this.time] })
 	        ),
 	        React.createElement(_footer2.default, { onClick: this.pageHandler })
 	      );
@@ -9079,9 +9092,19 @@
 	            'Viktharien Volander'
 	          ),
 	          React.createElement(
-	            'p',
+	            'h2',
 	            { id: 'desc' },
-	            'React Front-End Developer'
+	            'React Developer'
+	          ),
+	          React.createElement(
+	            'h4',
+	            null,
+	            'Front-End or Fullstack (MERN)'
+	          ),
+	          React.createElement(
+	            'p',
+	            null,
+	            'I like making things that look cool and help you do something too.'
 	          )
 	        )
 	      );
@@ -9137,7 +9160,16 @@
 	          React.createElement(
 	            'h1',
 	            null,
-	            'Projects'
+	            'Recent Projects'
+	          ),
+	          React.createElement(
+	            'div',
+	            { className: 'thumbnail-container' },
+	            React.createElement(
+	              'a',
+	              { href: 'https://reactionfactory.herokuapp.com/', target: '_blank' },
+	              React.createElement('img', { src: '../../5.png' })
+	            )
 	          ),
 	          React.createElement(
 	            'div',
@@ -9155,15 +9187,6 @@
 	              'a',
 	              { href: 'https://codepen.io/viktharien/project/live/d90acf0c5b13523e2cc1708e66f3f2f6/ZRNBOd/', target: '_blank' },
 	              React.createElement('img', { src: 'http://res.cloudinary.com/viktharien/image/upload/v1509718850/1_z0tiao.png' })
-	            )
-	          ),
-	          React.createElement(
-	            'div',
-	            { className: 'thumbnail-container' },
-	            React.createElement(
-	              'a',
-	              { href: 'https://codepen.io/viktharien/project/live/AYPaLO/', target: '_blank' },
-	              React.createElement('img', { src: 'http://res.cloudinary.com/viktharien/image/upload/v1509718850/2_wzce9c.png' })
 	            )
 	          )
 	        )
@@ -9223,52 +9246,47 @@
 	            'Skills'
 	          ),
 	          React.createElement(
-	            'p',
+	            'h3',
 	            null,
-	            'I have some skills, I have some tools, and I have some ways of doing things. I\'m not the Einstein of Front-End Development, but then again, Einstein wasn\'t a Front-End Developer. Let\'s just say that I\'m a learner and I learn by making things.'
+	            'Let\'s keep this nice and simple. This is what I do:'
 	          ),
 	          React.createElement(
-	            'ul',
+	            'div',
 	            null,
 	            React.createElement(
-	              'strong',
+	              'p',
 	              null,
-	              'Front-End'
+	              'React.js : Redux'
 	            ),
 	            React.createElement(
-	              'li',
+	              'p',
 	              null,
-	              'React.js : It\'s modular, fast loading with that virtual DOM thang, yo!'
+	              'Node.js : Express'
 	            ),
 	            React.createElement(
-	              'li',
+	              'p',
 	              null,
-	              'jQuery : I use it in conjunction with React to have better control over animations and event handling.'
+	              'NoSQL : Google Firebase : MongoDB : Mongoose'
 	            ),
 	            React.createElement(
-	              'li',
+	              'p',
 	              null,
-	              'JavaScript : ES6 (and ES7 for the API async functions)'
+	              'JavaScript ES6 : TypeScript : jQuery'
 	            ),
 	            React.createElement(
-	              'li',
+	              'p',
 	              null,
-	              'SCSS : I use it mainly to make my CSS dryer and also variables!'
+	              'SCSS : CSS3 : Flexbox : Grid'
 	            ),
 	            React.createElement(
-	              'li',
+	              'p',
 	              null,
-	              'CSS3 : I like plain old CSS, but CSS3 introduced Grid. I love Grid.'
+	              'HTML5 : JSX : Bootstrap'
 	            ),
 	            React.createElement(
-	              'li',
+	              'p',
 	              null,
-	              'Bootstrap : Ask me more about Bootstrap. I know how to use it.'
-	            ),
-	            React.createElement(
-	              'li',
-	              null,
-	              'HTML5 : Also JSX because of React.'
+	              'C# : Python 2'
 	            )
 	          )
 	        )
@@ -9302,36 +9320,47 @@
 	var Contact = function (_React$Component) {
 	  _inherits(Contact, _React$Component);
 
-	  function Contact() {
+	  function Contact(props) {
 	    _classCallCheck(this, Contact);
 
-	    return _possibleConstructorReturn(this, (Contact.__proto__ || Object.getPrototypeOf(Contact)).apply(this, arguments));
+	    var _this = _possibleConstructorReturn(this, (Contact.__proto__ || Object.getPrototypeOf(Contact)).call(this, props));
+
+	    _this.timestamp = _this.props.time[0];
+	    _this.time = _this.props.time[1];
+	    return _this;
 	  }
 
 	  _createClass(Contact, [{
 	    key: 'componentDidMount',
 	    value: function componentDidMount() {
+	      var _this2 = this;
+
 	      $('#envelope').addClass('animated fadeInLeftBig');
 	      $('#contactme').click(function (e) {
+	        var time = _this2.time;
+	        var timeString = '' + time.locale.split('/').join('-');
 	        var formName = $('#formName').val();
 	        var formEmail = $('#formEmail').val();
 	        var formMsg = $('#formMsg').val();
-	        var contactDate = new Date('2017-11-04');
+	        var id = localStorage.getItem("clientID");
+	        console.log(JSON.stringify(id));
 	        e.preventDefault();
 	        document.getElementById('theform').reset();
 	        $('#envelope').addClass('animated fadeOutRightBig');
 	        $.ajax({
-	          url: 'https://glestbukken.firebaseio.com/inbox/' + contactDate + '.json',
+	          url: 'https://glestbukken.firebaseio.com/inbox/' + timeString + '/' + id + '.json',
 	          type: 'POST',
 	          data: JSON.stringify({
+	            client: 'Portfolio',
 	            name: formName,
 	            email: formEmail,
-	            message: formMsg
+	            message: formMsg,
+	            at: time.hour + ':' + time.min
 	          }),
 	          dataType: 'json',
 	          contentType: 'application/json',
 	          success: function success(response) {
-	            console.log(response);
+	            //
 	          },
 	          error: function error(jqXHR, status, errorThrown) {
 	            console.log(jqXHR);
@@ -9568,15 +9597,15 @@
 
 	      //I chose to use jquery to handle clicks instead of the standard react method BECAUSE my buttons use transitions that seem to work inconsistently using pure react. The jquery catches all cases (90% of the time) of different user click locations.
 	      $('.btn').click(function (e) {
-	        console.log(e.target.id + ' div face');
+	        //console.log(e.target.id + ' div face');
 	        _this3.handleClick(e.target.id);
 	      });
 	      $('.btn button').click(function (e) {
-	        console.log(e.target.id + ' button face');
+	        //console.log(e.target.id + ' button face');
 	        _this3.handleClick(e.target.id);
 	      });
 	      $('.btn i').click(function (e) {
-	        console.log(e.target.id + ' i face');
+	        //console.log(e.target.id + ' i face');
 	        _this3.handleClick(e.target.id);
 	      });
 	    }
